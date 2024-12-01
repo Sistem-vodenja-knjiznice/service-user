@@ -4,7 +4,37 @@ from rest_framework.response import Response
 from .models import User
 from .serializers import UserSerializer
 
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
+
+@extend_schema_view(
+    list=extend_schema(
+        summary="List all users",
+        description="Returns a list of all users.",
+        responses=UserSerializer,
+    ),
+    retrieve=extend_schema(
+        summary="Get a user by ID",
+        description="Returns a single user by its ID.",
+        responses=UserSerializer,
+    ),
+    create=extend_schema(
+        summary="Create a user",
+        description="Creates a new user.",
+        request=UserSerializer,
+        responses=UserSerializer,
+    ),
+    update=extend_schema(
+        summary="Update a user",
+        description="Updates an existing user.",
+        request=UserSerializer,
+        responses=UserSerializer,
+    ),
+    destroy=extend_schema(
+        summary="Delete a user",
+        description="Deletes a user.",
+    ),
+)
 class UserViewSet(viewsets.ViewSet):
     def list(self, request):
         users = User.objects.all()
