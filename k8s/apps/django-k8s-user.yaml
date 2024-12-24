@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-user-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: service-user-deployment
+  template:
+    metadata:
+      labels:
+        app: service-user-deployment
+    spec:
+      containers:
+        - name: service-user
+          image: registry.digitalocean.com/rso-vaje/service-user:latest
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: django-k8s-borrow-prod-env
+          env:
+            - name: PORT
+              value: "8002"
+          ports:
+            - containerPort: 8000
+      imagePullSecrets:
+        - name: registry-rso-vaje
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-user-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8000
+  selector:
+    app: service-user-deployment
