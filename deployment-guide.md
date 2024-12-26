@@ -20,8 +20,8 @@ docker push registry.digitalocean.com/rso-vaje/service-user --all-tags
 4. Update secrets (if needed)
 
 ```
-kubectl delete secret django-k8s-borrow-prod-env
-kubectl create secret generic django-k8s-borrow-prod-env --from-env-file=.env.prod
+kubectl delete secret django-k8s-user-prod-env
+kubectl create secret generic django-k8s-user-prod-env --from-env-file=.env.prod
 ```
 
 5. Update Deployment `k8s/apps/django-k8s-user.yaml`:

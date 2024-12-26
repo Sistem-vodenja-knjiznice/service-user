@@ -18,10 +18,10 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - secretRef:
-                name: django-k8s-borrow-prod-env
+                name: django-k8s-user-prod-env
           env:
             - name: PORT
-              value: "8002"
+              value: "8000"
           ports:
             - containerPort: 8000
       imagePullSecrets:
@@ -34,11 +34,11 @@ kind: Service
 metadata:
   name: service-user-service
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: http
       protocol: TCP
-      port: 80
+      port: 8000
       targetPort: 8000
   selector:
     app: service-user-deployment
