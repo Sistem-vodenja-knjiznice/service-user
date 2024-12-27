@@ -11,5 +11,8 @@ urlpatterns = [
         'get': 'retrieve',
         'put': 'update',
         'delete': 'destroy'
-    }))
+    })),
+    path('users/login', UserViewSet.as_view({
+        'get': 'login',
+    })),
 ]
