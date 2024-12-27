@@ -13,6 +13,6 @@ urlpatterns = [
         'delete': 'destroy'
     })),
     path('users/login', UserViewSet.as_view({
-        'get': 'login',
+        'post': 'login',
     })),
 ]
