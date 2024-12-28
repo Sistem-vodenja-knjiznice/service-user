@@ -1,5 +1,6 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .models import User
 from .serializers import UserSerializer, UserLoginSerializer
@@ -76,6 +77,7 @@ class UserViewSet(viewsets.ViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=False, methods=['post'])
     def login(self, request):
         username = request.data['username']
         user = User.objects.get(username=username)
