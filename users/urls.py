@@ -7,9 +7,12 @@ urlpatterns = [
         'get': 'list',
         'post': 'create'
     })),
+    path('users/login', UserViewSet.as_view({
+        'post': 'login',
+    })),
     path('users/<str:pk>', UserViewSet.as_view({
         'get': 'retrieve',
         'put': 'update',
         'delete': 'destroy'
-    }))
+    })),
 ]
