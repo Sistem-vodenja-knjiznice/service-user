@@ -86,5 +86,5 @@ class UserViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def health_check(request):
-        status = {"status": "healthy"}
-        return JsonResponse(status, status=200)
+        health_status = {"status": "healthy"}
+        return JsonResponse(health_status, status=200)
