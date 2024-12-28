@@ -1,11 +1,11 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema, extend_schema_view
+from django.http import JsonResponse
 
 from .models import User
 from .serializers import UserSerializer, UserLoginSerializer
-
-from drf_spectacular.utils import extend_schema, extend_schema_view
 
 
 @extend_schema_view(
@@ -84,3 +84,7 @@ class UserViewSet(viewsets.ViewSet):
         serializer = UserSerializer(user)
 
         return Response(serializer.data)
+
+    def health_check(request):
+        status = {"status": "healthy"}
+        return JsonResponse(status, status=200)

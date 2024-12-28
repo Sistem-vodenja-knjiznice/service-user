@@ -24,6 +24,18 @@ spec:
               value: "8000"
           ports:
             - containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /api/users/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/users/health
+              port: 8000
+            initialDelaySeconds: 3
+            periodSeconds: 5
       imagePullSecrets:
         - name: registry-rso-vaje
 
