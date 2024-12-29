@@ -11,9 +11,9 @@ scrape_configs:
     static_configs:
       - targets: [ 'service-book-service.default.svc.cluster.local:8001' ]
 
-  - job_name: 'service-borrows-service'
+  - job_name: 'service-borrow-service'
     static_configs:
-      - targets: [ 'service-borrows-service.default.svc.cluster.local:8002' ]
+      - targets: [ 'service-borrow-service.default.svc.cluster.local:8002' ]
 
   - job_name: 'service-frontend-service'
     static_configs:
