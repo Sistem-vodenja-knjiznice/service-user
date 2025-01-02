@@ -117,46 +117,8 @@ if DB_AVAILABLE:
             'PASSWORD': DB_PASSWORD,
             'HOST': DB_HOST,
             'PORT': DB_PORT,
-            'OPTIONS': {
-                'ssl': {'disabled': True} if DB_IGNORE_SSL else {}
-            },
-            'TEST': {
-                'NAME': 'test_user',  # Temporary test database name
-            },
         }
-
     }
-
-# Logging
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'json': {
-            '()': 'django.utils.log.ServerFormatter',
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'json',
-        },
-        'logfile': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/django.log',
-            'formatter': 'json',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'logfile'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
