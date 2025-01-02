@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import os
+
+from users.etcd_gateway import get_etcd_key
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,14 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = get_etcd_key('USER/DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = str(os.getenv('DEBUG')) == '1'
-ENV_ALLOWED_HOST = os.getenv('ENV_ALLOWED_HOST', 'localhost').split(',')
+DEBUG = str(get_etcd_key('DEBUG')) == '1'
+ENV_ALLOWED_HOST = get_etcd_key('USER/ENV_ALLOWED_HOST')
 
 if ENV_ALLOWED_HOST:
-    ALLOWED_HOSTS = ENV_ALLOWED_HOST
+    ALLOWED_HOSTS = ENV_ALLOWED_HOST.split(',')
 
 
 # Application definition
@@ -91,11 +92,11 @@ DATABASES = {
     }
 }
 
-DB_NAME = os.getenv('DB_NAME')
-DB_USERNAME = os.getenv('DB_USERNAME')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')
+DB_NAME = get_etcd_key('USER/DB_NAME')
+DB_USERNAME = get_etcd_key('USER/DB_USERNAME')
+DB_PASSWORD = get_etcd_key('USER/DB_PASSWORD')
+DB_HOST = get_etcd_key('USER/DB_HOST')
+DB_PORT = get_etcd_key('USER/DB_PORT')
 
 DB_AVAILABLE= all([
     DB_NAME,
@@ -105,7 +106,7 @@ DB_AVAILABLE= all([
     DB_PORT
 ])
 
-DB_IGNORE_SSL = os.getenv('DB_IGNORE_SSL') == 'true'
+DB_IGNORE_SSL = get_etcd_key('DB_IGNORE_SSL') == 'true'
 
 if DB_AVAILABLE:
     DATABASES = {
@@ -116,8 +117,46 @@ if DB_AVAILABLE:
             'PASSWORD': DB_PASSWORD,
             'HOST': DB_HOST,
             'PORT': DB_PORT,
+            'OPTIONS': {
+                'ssl': {'disabled': True} if DB_IGNORE_SSL else {}
+            },
+            'TEST': {
+                'NAME': 'test_user',  # Temporary test database name
+            },
         }
+
     }
+
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'json': {
+            '()': 'django.utils.log.ServerFormatter',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'json',
+        },
+        'logfile': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/django.log',
+            'formatter': 'json',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'logfile'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
