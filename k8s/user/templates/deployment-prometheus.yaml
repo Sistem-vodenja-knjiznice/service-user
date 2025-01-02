@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.prometheus.name }}
+spec:
+  {{- if not .Values.prometheus.autoscaling.enabled }}
+  replicas: {{ .Values.prometheus.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.prometheus.name }}
+  template:
+    metadata:
+      {{- with .Values.prometheus.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ .Values.prometheus.name }}
+    spec:
+      {{- with .Values.prometheus.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "user.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.prometheus.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.prometheus.securityContext | nindent 12 }}
+          image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.prometheus.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.prometheus.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.prometheus.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.prometheus.resources | nindent 12 }}
+          {{- with .Values.prometheus.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.prometheus.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.prometheus.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.prometheus.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.prometheus.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
