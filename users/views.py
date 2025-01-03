@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiResponse
 from django.http import JsonResponse
 
 from .models import User
@@ -12,34 +12,76 @@ from .serializers import UserSerializer, UserLoginSerializer
     list=extend_schema(
         summary="List all users",
         description="Returns a list of all users.",
-        responses=UserSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=UserSerializer(many=True),
+                description="List of users",
+            ),
+            400: OpenApiResponse(description="Bad Request"),
+        },
     ),
     retrieve=extend_schema(
         summary="Get a user by ID",
-        description="Returns a single user by its ID.",
-        responses=UserSerializer,
+        description="Returns a single user by their ID.",
+        responses={
+            200: OpenApiResponse(
+                response=UserSerializer,
+                description="User details",
+            ),
+            404: OpenApiResponse(description="User not found"),
+        },
     ),
     create=extend_schema(
         summary="Create a user",
         description="Creates a new user.",
         request=UserSerializer,
-        responses=UserSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=UserSerializer,
+                description="Created user",
+            ),
+            400: OpenApiResponse(description="Validation error"),
+        },
     ),
     update=extend_schema(
         summary="Update a user",
         description="Updates an existing user.",
         request=UserSerializer,
-        responses=UserSerializer,
+        responses={
+            202: OpenApiResponse(
+                response=UserSerializer,
+                description="Updated user",
+            ),
+            400: OpenApiResponse(description="Validation error"),
+            404: OpenApiResponse(description="User not found"),
+        },
     ),
     destroy=extend_schema(
         summary="Delete a user",
         description="Deletes a user.",
+        responses={
+            204: OpenApiResponse(description="User deleted successfully"),
+            404: OpenApiResponse(description="User not found"),
+        },
     ),
     login=extend_schema(
-        summary="Temporary login",
-        description="Returns user by username.",
+        summary="Login a user",
+        description="Logs in a user by username and returns their details.",
         request=UserLoginSerializer,
-        responses=UserSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=UserSerializer,
+                description="Logged in user details",
+            ),
+            400: OpenApiResponse(description="Invalid username"),
+        },
+    ),
+    health_check=extend_schema(
+        summary="Health check",
+        description="Returns the health status of the service.",
+        responses={
+            200: OpenApiResponse(description="Service is healthy"),
+        },
     ),
 )
 class UserViewSet(viewsets.ViewSet):
@@ -85,6 +127,7 @@ class UserViewSet(viewsets.ViewSet):
 
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'], url_path='health')
     def health_check(self, request):
         health_status = {"status": "healthy"}
         return JsonResponse(health_status, status=200)
